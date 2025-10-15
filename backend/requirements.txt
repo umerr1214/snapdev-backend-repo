@@ -12,4 +12,4 @@ google-auth-oauthlib
 gspread
 pymongo[async]>=4.9,<4.10
 motor
-pandas==3.0.0
+pandas==2.2.2
