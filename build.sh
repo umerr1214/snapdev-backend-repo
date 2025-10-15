@@ -2,11 +2,8 @@
 # exit on error
 set -o errexit
 
-# Set Python version (optional, but good practice)
-python --version
+# Install build essentials
+apt-get update && apt-get install -y build-essential
 
-# Upgrade pip and build tools
-pip install --upgrade pip wheel setuptools
-
-# Install dependencies
+# Install Python dependencies
 pip install -r backend/requirements.txt
