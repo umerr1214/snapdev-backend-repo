@@ -11,6 +11,5 @@ google-auth-httplib2
 google-auth-oauthlib
 python-dotenv
 gspread
-pymongo[async]>=4.9,<4.10
-motor
+motor>=4.9,<4.10
 pandas==2.2.2
