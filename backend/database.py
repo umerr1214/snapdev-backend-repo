@@ -21,7 +21,7 @@ async def connect_to_mongo():
     """Create database connection"""
     try:
         ca = certifi.where()
-        db.client = AsyncIOMotorClient(os.getenv("MONGODB_URL"), tlsCAFile=ca, appname="snapdev")
+        db.client = AsyncIOMotorClient(os.getenv("MONGODB_URL"), tlsCAFile=ca)
         db.database = db.client[os.getenv("DATABASE_NAME", "snapdev_portal")]
         
         # Test the connection

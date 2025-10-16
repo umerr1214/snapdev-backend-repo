@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel, EmailStr
-import bcrypt
+from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 import os
@@ -13,6 +13,7 @@ from models import User, UserCreate, UserResponse
 router = APIRouter()
 
 # Security
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
 
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-here")
@@ -34,10 +35,10 @@ class TokenData(BaseModel):
 
 # Utility functions
 def verify_password(plain_password, hashed_password):
-    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+    return pwd_context.verify(plain_password, hashed_password)
 
 def get_password_hash(password):
-    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    return pwd_context.hash(password)
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
@@ -100,7 +101,7 @@ async def login_admin(form_data: OAuth2PasswordRequestForm = Depends()):
         data={"sub": admin["email"]}, expires_delta=access_token_expires
     )
     user_response = UserResponse(**admin)
-    return {"access_token": access_token, "token_type": "bearer", "user": user_response.model_dump(by_alias=True)}
+    return {"access_token": access_token, "token_type": "bearer", "user": user_response.dict(by_alias=True)}
 
 @router.get("/me", response_model=User)
 async def read_admin_me(current_admin: User = Depends(get_current_admin)):
@@ -125,7 +126,7 @@ async def register_user(user_data: UserCreate):
         hashed_password=hashed_password,
     )
     
-    await users_collection.insert_one(user.model_dump(by_alias=True))
+    await users_collection.insert_one(user.dict(by_alias=True))
     return user
 
 @router.post("/logout")
